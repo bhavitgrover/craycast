@@ -9,7 +9,7 @@ export default defineContentScript({
   main() {
     console.log("Craycast loaded");
 
-    browser.runtime.onMessage.addListener((message) => {
+    browser.runtime.onMessage.addListener(async (message) => {
       console.log("CONTENT RECEIVED", message);
     });
 

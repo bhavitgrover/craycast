@@ -8,6 +8,7 @@ export default function App() {
   const [open, setOpen] = useState(false);
   const [tabs, setTabs] = useState<any[]>([]);
   const [query, setQuery] = useState("");
+  const [selected, setSelected] = useState(0);
 
   const fuse = new Fuse(tabs, {
     keys: ["title", "url"],
@@ -19,6 +20,48 @@ export default function App() {
     : tabs;
 
   useEffect(() => {
+    const keyPress = (event: KeyboardEvent) => {
+      if (!open) return;
+
+      switch (event.key) {
+        case "Escape":
+          setOpen(false);
+          break;
+        case "ArrowDown":
+          event.preventDefault();
+
+          if (filteredTabs.length === 0) return;
+          setSelected((prev) => (prev + 1) % filteredTabs.length);
+          break;
+        case "ArrowUp":
+          event.preventDefault();
+
+          if (filteredTabs.length === 0) return;
+          setSelected((prev) =>
+            prev === 0 ? filteredTabs.length - 1 : prev - 1,
+          );
+          break;
+        case "Enter":
+          event.preventDefault();
+
+          if (filteredTabs.length === 0) return;
+          const selectedTab = filteredTabs[selected];
+          browser.runtime.sendMessage({
+            action: "switch-tab",
+            tabId: selectedTab.id,
+          });
+          setOpen(false);
+          break;
+      }
+    };
+    window.addEventListener("keydown", keyPress);
+
+    return () => {
+      window.removeEventListener("keydown", keyPress);
+    };
+  }, [filteredTabs, open, selected]);
+
+  useEffect(() => {
     const listener = (message: any) => {
       if (message.action === "toggle") {
         setOpen((prev) => !prev);
@@ -26,18 +69,10 @@ export default function App() {
       }
     };
 
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key == "Escape") {
-        setOpen(false);
-      }
-    };
-
     browser.runtime.onMessage.addListener(listener);
-    window.addEventListener("keydown", handleKeyDown);
 
     return () => {
       browser.runtime.onMessage.removeListener(listener);
-      window.removeEventListener("keydown", handleKeyDown);
     };
   }, []);
 
@@ -57,8 +92,13 @@ export default function App() {
         </div>
 
         <div className="craycast-results">
-          {filteredTabs.map((tab) => (
-            <TabLink key={tab.id ?? tab.url} tab={tab} />
+          {filteredTabs.map((tab, index) => (
+            <TabLink
+              key={tab.id ?? tab.url}
+              tab={tab}
+              type="Tab"
+              selected={index === selected}
+            />
           ))}
         </div>
       </div>

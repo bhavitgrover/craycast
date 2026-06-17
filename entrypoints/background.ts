@@ -1,5 +1,12 @@
 export default defineBackground(() => {
   console.log("Hello background!", { id: browser.runtime.id });
+  browser.runtime.onMessage.addListener(async (message) => {
+    if (message.action === "switch-tab") {
+      await browser.tabs.update(message.tabId, {
+        active: true,
+      });
+    }
+  });
   browser.commands.onCommand.addListener(async (command) => {
     if (command !== "toggle-craycast") return;
 

@@ -1,9 +1,17 @@
 import React from "react";
 
-function TabLink({ tab }: { tab: any }) {
+interface TabLinkProps {
+  tab: any;
+  type: string;
+  selected: boolean;
+}
+
+function TabLink({ tab, type, selected }: TabLinkProps) {
   return (
     <div>
-      <div className="craycast-tab">
+      <div
+        className={`craycast-tab ${selected ? "craycast-tab-selected" : ""}`}
+      >
         <img
           src={tab.favIconUrl || "https://i.ibb.co/5xsyJx78/settings.jpg"}
           alt="site-icon"
