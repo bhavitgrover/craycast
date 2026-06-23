@@ -9,6 +9,13 @@ export default function App() {
   const [tabs, setTabs] = useState<any[]>([]);
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState(0);
+  const [showMenu, setShowMenu] = useState("filteredTabs");
+  const [aiResponse, setAiResponse] = useState(
+    "Your results will show up here",
+  );
+  const [searchPlaceholder, setSearchPlaceholder] = useState(
+    "Search... (tab to ask AI)",
+  );
 
   const fuse = new Fuse(tabs, {
     keys: ["title", "url"],
@@ -20,7 +27,7 @@ export default function App() {
     : tabs;
 
   useEffect(() => {
-    const keyPress = (event: KeyboardEvent) => {
+    const keyPress = async (event: KeyboardEvent) => {
       if (!open) return;
 
       switch (event.key) {
@@ -41,16 +48,51 @@ export default function App() {
             prev === 0 ? filteredTabs.length - 1 : prev - 1,
           );
           break;
+        case "Tab":
+          event.preventDefault();
+          // console.log(showMenu, "showMenu");
+          if (showMenu === "aiMode") {
+            setShowMenu("filteredTabs");
+            setSearchPlaceholder("Search... (tab to ask AI)");
+            // console.log(showMenu, "set krdiya ji");
+          } else if (showMenu === "filteredTabs") {
+            setSearchPlaceholder("Ask AI... (tab to search)");
+            setShowMenu("aiMode");
+            // console.log(showMenu, "set krdiya ji 2");
+          }
+
+          break;
         case "Enter":
           event.preventDefault();
 
-          if (filteredTabs.length === 0) return;
-          const selectedTab = filteredTabs[selected];
-          browser.runtime.sendMessage({
-            action: "switch-tab",
-            tabId: selectedTab.id,
-          });
-          setOpen(false);
+          if (showMenu === "filteredTabs") {
+            if (filteredTabs.length === 0) return;
+            const selectedTab = filteredTabs[selected];
+            browser.runtime.sendMessage({
+              action: "switch-tab",
+              tabId: selectedTab.id,
+            });
+
+            setOpen(false);
+          } else if (showMenu === "aiMode") {
+            setAiResponse("Loading...");
+
+            browser.runtime.sendMessage(
+              {
+                action: "ask-ai",
+                query: query,
+              },
+              (response) => {
+                if (browser.runtime.lastError) {
+                  console.log(browser.runtime.lastError);
+                  setAiResponse("Error: " + browser.runtime.lastError.message);
+                } else if (response) {
+                  setAiResponse(response.response ?? "No response");
+                }
+              },
+            );
+          }
+
           break;
       }
     };
@@ -59,13 +101,16 @@ export default function App() {
     return () => {
       window.removeEventListener("keydown", keyPress);
     };
-  }, [filteredTabs, open, selected]);
+  }, [filteredTabs, open, selected, showMenu]);
 
   useEffect(() => {
     const listener = (message: any) => {
       if (message.action === "toggle") {
         setOpen((prev) => !prev);
         setTabs(message.tabs ?? []);
+      }
+      if (message.action === "ai-response") {
+        setAiResponse(message.response ?? "No response");
       }
     };
 
@@ -85,21 +130,27 @@ export default function App() {
           <input
             className="craycast-input"
             autoFocus
-            placeholder="Search tabs..."
+            placeholder={searchPlaceholder}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
         </div>
 
         <div className="craycast-results">
-          {filteredTabs.map((tab, index) => (
-            <TabLink
-              key={tab.id ?? tab.url}
-              tab={tab}
-              type="Tab"
-              selected={index === selected}
-            />
-          ))}
+          {showMenu === "filteredTabs" &&
+            filteredTabs.map((tab, index) => (
+              <TabLink
+                key={tab.id ?? tab.url}
+                tab={tab}
+                type="Tab"
+                selected={index === selected}
+              />
+            ))}
+          {showMenu === "aiMode" && (
+            <div className="craycast-ai-mode">
+              <p>{aiResponse}</p>
+            </div>
+          )}
         </div>
       </div>
     </div>
