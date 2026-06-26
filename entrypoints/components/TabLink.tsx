@@ -1,4 +1,6 @@
 import React from "react";
+import arrowImage from "~/assets/arrow.svg";
+import settingsImage from "~/assets/settings.svg";
 
 interface TabLinkProps {
   tab: any;
@@ -12,12 +14,22 @@ function TabLink({ tab, type, selected }: TabLinkProps) {
       <div
         className={`craycast-tab ${selected ? "craycast-tab-selected" : ""}`}
       >
-        <img
-          src={tab.favIconUrl || "https://i.ibb.co/5xsyJx78/settings.jpg"}
-          alt="site-icon"
-          className="craycast-favicon"
-        />
-        {tab.title}
+        <div className="tab-left">
+          <img
+            src={tab.favIconUrl || settingsImage}
+            alt="site-icon"
+            className="craycast-favicon"
+          />
+          {tab.title}
+        </div>
+        <div className={`tab-right ${!selected ? "hidden" : ""}`}>
+          <div className="enter-key">Enter</div>
+          <img
+            src={arrowImage}
+            alt=""
+            style={{ height: "14px", aspectRatio: "1" }}
+          />
+        </div>
       </div>
     </div>
   );

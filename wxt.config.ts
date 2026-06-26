@@ -4,6 +4,12 @@ export default defineConfig({
   modules: ["@wxt-dev/module-react"],
 
   manifest: {
+    web_accessible_resources: [
+      {
+        resources: ["fonts/*"],
+        matches: ["<all_urls>"],
+      },
+    ],
     permissions: ["tabs"],
 
     host_permissions: ["<all_urls>"],

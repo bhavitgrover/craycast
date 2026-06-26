@@ -1,3 +1,14 @@
+* {
+  box-sizing: border-box;
+}
+
+@font-face {
+  font-family: "Inter_Display";
+  src: url("../../fonts/ttf/InterDisplay-Regular.ttf");
+  font-weight: 400;
+  font-style: normal;
+}
+
 .craycast-overlay {
   position: fixed;
   inset: 0;
@@ -6,67 +17,168 @@
   justify-content: center;
   align-items: flex-start;
   padding-top: 10vh;
-  background: rgba(0, 0, 0, 0.5);
+  /* background: rgba(0, 0, 0, 0.5); */
 }
 
 .craycast-window {
   width: 50vw;
-  background: #1a1a1a;
-  color: white;
-  border-radius: 12px;
-  padding: 16px;
+  background: transparent;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 7px;
 }
 
 .craycast-window,
 .craycast-window * {
-  font-family: "Outfit", sans-serif;
+  font-family: "Inter_Display", sans-serif;
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .craycast-search {
-  width: 100%;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-  padding-bottom: 12px;
+  min-height: 20px;
+  max-width: 100%;
+  border-radius: 100px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  background-color: rgba(37, 37, 37, 0.7);
+  backdrop-filter: blur(25px);
+  padding: 20px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  /* justify-content: center; */
 }
 
 .craycast-input {
-  width: 100%;
+  width: 80%;
   border: none;
   outline: none;
   background: transparent;
   color: white;
-  font-size: 20px;
+  font-size: 22px;
 }
 
 .craycast-input::placeholder {
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .craycast-results {
+  max-width: 50vw;
+  padding: 20px;
   display: flex;
   flex-direction: column;
   gap: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  background-color: rgba(37, 37, 37, 0.7);
+  backdrop-filter: blur(25px);
+  border-radius: 40px;
+  min-height: 200px;
+  max-height: 400px;
+  overflow-y: scroll;
+}
+
+.craycast-results::-webkit-scrollbar {
+  /* background-color: red !important; */
+  width: 8px;
+  height: calc(100% - 60px);
+}
+
+.craycast-results::-webkit-scrollbar-track {
+  margin: 30px 0;
+}
+
+.craycast-results::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.15);
+  border-radius: 100px;
+}
+
+.craycast-results::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.25);
 }
 
 .craycast-tab {
-  padding: 10px 12px;
-  border-radius: 8px;
+  max-width: 100%;
+  font-size: 16px;
+  padding: 12px;
+  border-radius: 18px;
   cursor: pointer;
   transition: background 0.15s ease;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tab-left {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  align-items: center;
+}
+
+.tab-right {
   display: flex;
   flex-direction: row;
   align-items: center;
   gap: 10px;
 }
 
-.craycast-tab:hover {
-  background: rgba(255, 255, 255, 0.08);
+.enter-key {
+  border: 1px rgba(255, 255, 255, 0.7) solid;
+  color: rgba(255, 255, 255, 0.7);
+  padding: 4px;
+  border-radius: 5px;
 }
 
 .craycast-tab-selected {
   background: rgba(255, 255, 255, 0.08);
+}
+
+.craycast-tab:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.craycast-ai-mode {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 15px;
+  width: 100%;
+}
+
+.hidden {
+  display: none;
+}
+
+.craycast-human-query {
+  padding: 15px;
+  max-width: 65%;
+  align-self: end;
+  word-wrap: break-word;
+  color: #000 !important;
+  background-color: rgba(255, 255, 255, 0.7);
+  border-radius: 8px;
+}
+
+.craycast-ai-response {
+  padding: 15px;
+  max-width: 100%;
+  align-self: start;
+  word-wrap: break-word;
+  color: #000 !important;
+  border: 1px rgba(255, 255, 255, 0.2) solid;
+  border-radius: 8px;
+  background-color: rgba(0, 0, 0, 0.3);
+  min-width: 100%;
+  min-height: 70px;
+}
+
+.craycast-human-query > span {
+  color: #000 !important;
+  font-size: 18px;
+}
+.craycast-ai-response > span {
+  color: #fff !important;
+  font-size: 18px;
 }
 
 .craycast-favicon {

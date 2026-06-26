@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-import "@fontsource/outfit";
+import { useEffect, useState, useRef } from "react";
 import "./App.css";
 import TabLink from "./TabLink";
 import Fuse from "fuse.js";
@@ -10,12 +9,11 @@ export default function App() {
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState(0);
   const [showMenu, setShowMenu] = useState("filteredTabs");
-  const [aiResponse, setAiResponse] = useState(
-    "Your results will show up here",
-  );
-  const [searchPlaceholder, setSearchPlaceholder] = useState(
-    "Search... (tab to ask AI)",
-  );
+  const resultsRef = useRef<HTMLDivElement>(null);
+  const [aiResponse, setAiResponse] = useState("");
+  const [searchPlaceholder, setSearchPlaceholder] =
+    useState("Type to search...");
+  const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const fuse = new Fuse(tabs, {
     keys: ["title", "url"],
@@ -27,6 +25,17 @@ export default function App() {
     : tabs;
 
   useEffect(() => {
+    itemRefs.current[selected]?.scrollIntoView({
+      block: "nearest",
+      behavior: "smooth",
+    });
+  }, [selected]);
+
+  useEffect(() => {
+    setSelected(0);
+  }, [query]);
+
+  useEffect(() => {
     const keyPress = async (event: KeyboardEvent) => {
       if (!open) return;
 
@@ -34,40 +43,47 @@ export default function App() {
         case "Escape":
           setOpen(false);
           break;
+
         case "ArrowDown":
           event.preventDefault();
 
           if (filteredTabs.length === 0) return;
+
           setSelected((prev) => (prev + 1) % filteredTabs.length);
+          console.log("arrow down pressed");
           break;
+
         case "ArrowUp":
           event.preventDefault();
+          console.log("arrow up pressed");
 
           if (filteredTabs.length === 0) return;
+
           setSelected((prev) =>
             prev === 0 ? filteredTabs.length - 1 : prev - 1,
           );
           break;
+
         case "Tab":
           event.preventDefault();
-          // console.log(showMenu, "showMenu");
+
           if (showMenu === "aiMode") {
             setShowMenu("filteredTabs");
             setSearchPlaceholder("Search... (tab to ask AI)");
-            // console.log(showMenu, "set krdiya ji");
-          } else if (showMenu === "filteredTabs") {
-            setSearchPlaceholder("Ask AI... (tab to search)");
+          } else {
             setShowMenu("aiMode");
-            // console.log(showMenu, "set krdiya ji 2");
+            setSearchPlaceholder("Ask AI... (tab to search)");
           }
-
           break;
+
         case "Enter":
           event.preventDefault();
 
           if (showMenu === "filteredTabs") {
             if (filteredTabs.length === 0) return;
+
             const selectedTab = filteredTabs[selected];
+
             browser.runtime.sendMessage({
               action: "switch-tab",
               tabId: selectedTab.id,
@@ -80,14 +96,13 @@ export default function App() {
             browser.runtime.sendMessage(
               {
                 action: "ask-ai",
-                query: query,
+                query,
               },
               (response) => {
                 if (browser.runtime.lastError) {
-                  console.log(browser.runtime.lastError);
                   setAiResponse("Error: " + browser.runtime.lastError.message);
-                } else if (response) {
-                  setAiResponse(response.response ?? "No response");
+                } else {
+                  setAiResponse(response?.response ?? "No response");
                 }
               },
             );
@@ -96,19 +111,31 @@ export default function App() {
           break;
       }
     };
-    window.addEventListener("keydown", keyPress);
+
+    window.addEventListener("keydown", keyPress, true);
 
     return () => {
-      window.removeEventListener("keydown", keyPress);
+      window.removeEventListener("keydown", keyPress, true);
     };
-  }, [filteredTabs, open, selected, showMenu]);
+  }, [open, filteredTabs, selected, showMenu, query]);
 
   useEffect(() => {
     const listener = (message: any) => {
       if (message.action === "toggle") {
         setOpen((prev) => !prev);
-        setTabs(message.tabs ?? []);
+
+        const incomingTabs = [...(message.tabs ?? [])];
+
+        for (let i = 0; i < incomingTabs.length; i++) {
+          if (incomingTabs[i].title && incomingTabs[i].title.length > 30) {
+            incomingTabs[i].title =
+              incomingTabs[i].title.substring(0, 30) + "...";
+          }
+        }
+        console.log("incoming tabs", incomingTabs);
+        setTabs(incomingTabs);
       }
+
       if (message.action === "ai-response") {
         setAiResponse(message.response ?? "No response");
       }
@@ -120,6 +147,8 @@ export default function App() {
       browser.runtime.onMessage.removeListener(listener);
     };
   }, []);
+
+  // console.log("Current tabs:", tabs);
 
   if (!open) return null;
 
@@ -136,19 +165,37 @@ export default function App() {
           />
         </div>
 
-        <div className="craycast-results">
+        <div ref={resultsRef} className="craycast-results">
           {showMenu === "filteredTabs" &&
             filteredTabs.map((tab, index) => (
-              <TabLink
+              <div
+                ref={(el) => {
+                  itemRefs.current[index] = el;
+                }}
                 key={tab.id ?? tab.url}
-                tab={tab}
-                type="Tab"
-                selected={index === selected}
-              />
+              >
+                <TabLink
+                  key={tab.id ?? tab.url}
+                  tab={tab}
+                  type="Tab"
+                  selected={index === selected}
+                />
+              </div>
             ))}
+
           {showMenu === "aiMode" && (
             <div className="craycast-ai-mode">
-              <p>{aiResponse}</p>
+              {!aiResponse ? <p>Your responses will show up here.</p> : <p></p>}
+              <div
+                className={`craycast-human-query ${!aiResponse ? "hidden" : ""}`}
+              >
+                <span>{query}</span>
+              </div>
+              <div
+                className={`craycast-ai-response ${!aiResponse ? "hidden" : ""}`}
+              >
+                <span>{aiResponse}</span>
+              </div>
             </div>
           )}
         </div>
