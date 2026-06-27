@@ -10,7 +10,7 @@ export default defineConfig({
         matches: ["<all_urls>"],
       },
     ],
-    permissions: ["tabs"],
+    permissions: ["tabs", "storage", "bookmarks"],
 
     host_permissions: ["<all_urls>"],
 

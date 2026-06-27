@@ -1,6 +1,7 @@
 import React from "react";
 import arrowImage from "~/assets/arrow.svg";
 import settingsImage from "~/assets/settings.svg";
+import bookmarkImage from "~/assets/bookmark.svg";
 
 interface TabLinkProps {
   tab: any;
@@ -8,7 +9,7 @@ interface TabLinkProps {
   selected: boolean;
 }
 
-function TabLink({ tab, type, selected }: TabLinkProps) {
+function TabLink({ tab, selected }: TabLinkProps) {
   return (
     <div>
       <div
@@ -16,11 +17,16 @@ function TabLink({ tab, type, selected }: TabLinkProps) {
       >
         <div className="tab-left">
           <img
-            src={tab.favIconUrl || settingsImage}
+            src={
+              tab.type === "Tab"
+                ? tab.favIconUrl || settingsImage
+                : bookmarkImage
+            }
             alt="site-icon"
             className="craycast-favicon"
           />
-          {tab.title}
+          <span> {tab.title}</span>
+          <span className="craycast-tab-type">{tab.type}</span>
         </div>
         <div className={`tab-right ${!selected ? "hidden" : ""}`}>
           <div className="enter-key">Enter</div>

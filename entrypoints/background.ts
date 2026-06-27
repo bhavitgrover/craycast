@@ -1,8 +1,23 @@
+import { storeApiKey } from "../utils/storeApiKey";
+
 export default defineBackground(() => {
   console.log("Hello background!", { id: browser.runtime.id });
   browser.runtime.onMessage.addListener(
     async (message, sender, sendResponse) => {
       try {
+        if (message.action === "get-bookmarks") {
+          const bookmarks = await browser.bookmarks.getTree();
+          sendResponse({
+            bookmarks,
+          });
+        }
+
+        if (message.action === "open-bookmark") {
+          await browser.tabs.create({
+            url: message.url,
+          });
+        }
+
         if (message.action === "switch-tab") {
           await browser.tabs.update(message.tabId, {
             active: true,
@@ -12,13 +27,22 @@ export default defineBackground(() => {
         }
         if (message.action === "ask-ai") {
           try {
+            const apiKey = await storeApiKey.getValue();
+            if (!apiKey) {
+              sendResponse({
+                action: "ai-response",
+                response: `No API key set`,
+                error: true,
+              });
+            }
+
             const response = await fetch(
               "https://ai.hackclub.com/proxy/v1/responses",
               {
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",
-                  Authorization: `Bearer ${import.meta.env.WXT_HACK_CLUB_API_KEY}`,
+                  Authorization: `Bearer ${apiKey}`,
                 },
                 body: JSON.stringify({
                   model: "anthropic/claude-opus-4.8",
