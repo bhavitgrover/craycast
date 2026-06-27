@@ -197,6 +197,8 @@
   padding: 4px;
   border-radius: 5px;
   outline: none;
+  background-color: transparent !important;
+  color: white !important;
 }
 
 .api-button {
@@ -205,6 +207,8 @@
   font-size: 16px;
   padding: 4px;
   border-radius: 5px;
+  background-color: transparent !important;
+  color: rgba(255, 255, 255, 0.7) !important;
 }
 
 .api-input {
