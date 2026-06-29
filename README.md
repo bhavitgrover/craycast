@@ -26,9 +26,13 @@ Being a developer, I am awarae of this annoying feeling of **navigating through 
    npm run build
    ```
 5) You would now see a ```.output``` folder appear in the file system.
-6) Open Chrome browser, go to ```chrome://extensions``` and over there on the top right menu, enable Developer Mode.
-7) Then you can click on Load Unpacked Extension, and select the ```chrome-mv3``` folder present in the ```.output``` directory.
-8) You can now open a website, and press ```Ctrl + Shift + K``` to open Craycast.
+
+### NOTE
+You can just skip the steps above and download the project from [here](https://drive.google.com/drive/folders/1nxj86SX_aElGFZ_GLCkcDKoSxfpnoDAE?usp=sharing).
+
+7) Open Chrome browser, go to ```chrome://extensions``` and over there on the top right menu, enable Developer Mode.
+8) Then you can click on Load Unpacked Extension, and select the ```chrome-mv3``` folder present in the ```.output``` directory.
+9) You can now open a website, and press ```Ctrl + Shift + K``` to open Craycast.
 
 ### NOTE
 Chrome blocks the usage of such shortcuts and extensions on the settings, and the new tab page. It is therefore recommended to open either ```google.com``` or another site in order to view the Craycast window.
