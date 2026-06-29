@@ -1,7 +1,3 @@
-* {
-  box-sizing: border-box;
-}
-
 @font-face {
   font-family: "Inter_Display";
   src: url("../../fonts/ttf/InterDisplay-Regular.ttf");
@@ -32,6 +28,7 @@
 .craycast-window * {
   font-family: "Inter_Display", sans-serif;
   color: rgba(255, 255, 255, 0.7);
+  box-sizing: border-box;
 }
 
 .craycast-search {
@@ -222,6 +219,7 @@
   padding: 4px;
   border-radius: 5px;
   justify-self: end;
+  background: transparent;
 }
 
 .craycast-tab-type {
